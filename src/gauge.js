@@ -87,6 +87,7 @@
       gaugeClass: "gauge",
       showValue: true,
       gaugeColor: null,
+      textY: 50,
       label: function(val) {return Math.round(val);}
     };
 
@@ -208,6 +209,7 @@
           gaugeValuePath,
           label = opts.label,
           viewBox = opts.viewBox,
+          textY = opts.textY,
           instance;
 
       if(startAngle < endAngle) {
@@ -232,7 +234,7 @@
       function initializeGauge(elem) {
         gaugeValueElem = svg("text", {
           x: 50,
-          y: 50,
+          y: textY,
           fill: "#999",
           "class": valueTextClass,
           "font-size": "100%",
