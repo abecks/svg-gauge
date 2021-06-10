@@ -93,7 +93,7 @@
     function shallowCopy(/* source, ...targets*/) {
       var target = arguments[0], sources = slice.call(arguments, 1);
       sources.forEach(function(s) {
-        for(k in s) {
+        for(var k in s) {
           if(s.hasOwnProperty(k)) {
             target[k] = s[k];
           }
@@ -253,19 +253,17 @@
 
         var angle = getAngle(100, 360 - Math.abs(startAngle - endAngle));
         var flag = angle <= 180 ? 0 : 1;
-        var gaugeElement = svg("svg", {"viewBox": viewBox || "0 0 100 100", "class": gaugeClass},
-          [
-            svg("path", {
-              "class": dialClass,
-              fill: "none",
-              stroke: "#eee",
-              "stroke-width": 2,
-              d: pathString(radius, startAngle, endAngle, flag)
-            }),
-            gaugeValueElem,
-            gaugeValuePath
-          ]
-        );
+        var gaugeElement = svg("svg", {"viewBox": viewBox || "0 0 100 100", "class": gaugeClass}, [
+          svg("path", {
+            "class": dialClass,
+            fill: "none",
+            stroke: "#eee",
+            "stroke-width": 2,
+            d: pathString(radius, startAngle, endAngle, flag)
+          }),
+          svg("g", { "class": "text-container" }, [gaugeValueElem]),
+          gaugeValuePath
+        ]);
         elem.appendChild(gaugeElement);
       }
 
@@ -282,17 +280,15 @@
       }
 
       function setGaugeColor(value, duration) {        
-        var c = gaugeColor(value), 
+        var c = gaugeColor.call(opts, value), 
             dur = duration * 1000,
             pathTransition = "stroke " + dur + "ms ease";
             // textTransition = "fill " + dur + "ms ease";
 
-        gaugeValuePath.style = [
-          "stroke: " + c,
-          "-webkit-transition: " + pathTransition,
-          "-moz-transition: " + pathTransition,
-          "transition: " + pathTransition,
-        ].join(";");
+        gaugeValuePath.style.stroke = c;
+        gaugeValuePath.style["-webkit-transition"] = pathTransition;
+        gaugeValuePath.style["-moz-transition"] = pathTransition;
+        gaugeValuePath.style.transition = pathTransition;
         /*
         gaugeValueElem.style = [
           "fill: " + c,

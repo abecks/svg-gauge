@@ -2,6 +2,10 @@
 Minmalistic, configurable, animated SVG gauge. Zero dependencies
 
 
+## Buy me a coffee ☕
+If you like my work please consider making a small donation
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Z8Z01L1TS)
 
 
 ## Migration from 1.0.2
@@ -27,17 +31,17 @@ CSS
   display: block;
   padding: 10px;
 }
-.gauge-container > .gauge > .dial {
+.gauge-container > .gauge .dial {
   stroke: #eee;
   stroke-width: 2;
   fill: rgba(0,0,0,0);
 }
-.gauge-container > .gauge > .value {
+.gauge-container > .gauge .value {
   stroke: rgb(47, 227, 255);
   stroke-width: 2;
   fill: rgba(0,0,0,0);
 }
-.gauge-container > .gauge > .value-text {
+.gauge-container > .gauge .value-text {
   fill: rgb(47, 227, 255);
   font-family: sans-serif;
   font-weight: bold;
@@ -99,7 +103,7 @@ cpuGauge.setValueAnimated(90, 1);
 | ```gaugeClass```     | The CSS class of the gauge (```gauge```) |
 | ```dialClass```      | The CSS class of the gauge's dial (```dial```) |
 | ```valueDialClass``` | The CSS class of the gauge's fill (value dial) (```value```) |
-| ```valueTextClass``` | The CSS class of the gauge's text (```value-text```) |
+| ```valueClass```     | The CSS class of the gauge's text (```value-text```) |
 | ```color (new)```    | An optional function that can return a color for current value  ```function(value) {}``` |
 | ```viewBox (new)```  | An optional string that specifies the crop region (```0 0 100 100```) |
 
@@ -107,45 +111,41 @@ cpuGauge.setValueAnimated(90, 1);
 
 ## That's all good, but what about React?
 ```JSX
-import React from "react";
-import CreateReactClass from "create-react-class";
-import Gauge from "svg-gauge";
+import React, { useEffect, useRef } from "react";
+import SvgGauge from "svg-gauge";
 
 const defaultOptions = {
   animDuration: 1,
   showValue: true,
+  initialValue: 0,
   max: 100
   // Put any other defaults you want. e.g. dialStartAngle, dialEndAngle, radius, etc.
 };
 
-const Component = CreateReactClass({
-  displayName: "Gauge",
-  componentDidMount() {
-    this.renderGauge(this.props);
-  },
-
-  shouldComponentUpdate(nextProps, nextState) {
-    const {props} = this;
-    if(props.value !== nextProps.value) {
-      this.renderGauge(nextProps);
+const Gauge = props => {
+  const gaugeEl = useRef(null);
+  const gaugeRef = useRef(null);
+  useEffect(() => {
+    if (!gaugeRef.current) {
+      const options = { ...defaultOptions, ...props };
+      gaugeRef.current = SvgGauge(gaugeEl.current, options);
+      gaugeRef.current.setValue(options.initialValue);
     }
-    return false;
-  },
+    gaugeRef.current.setValueAnimated(props.value, 1);
+  }, [props]);
 
-  render() {
-    return (
-      <div className="gauge-container" ref={el => this.gaugeEl = el}></div>
-    );
-  },
+  return <div ref={gaugeEl} className="gauge-container" />;
+};
 
-  renderGauge(props) {
-    const gaugeOptions = Object.assign({}, defaultOptions, props);
-    if(!this.gauge) {
-      this.gauge = Gauge(this.gaugeEl, gaugeOptions);
-    }
-    this.gauge.setValueAnimated(props.value, gaugeOptions.animDuration);
-  }
-});
+export default Gauge;
+
+// to render:
+const renderGauge = () => (
+  <Gauge
+    value={42}
+    // any other options you want
+  />
+);
 ```
 
 ## And Angular?
